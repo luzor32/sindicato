@@ -7,7 +7,7 @@ use App\Models\Afiliado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-
+use Carbon\Carbon;
 class AfiliadoController extends Controller
 {
     /**
@@ -80,7 +80,11 @@ class AfiliadoController extends Controller
             'empresa' => 'required|string|max:255',
             'email' => 'required|email',
             'telefono' => 'required|string|max:50',
-            'fecha_nacimiento' => 'required|date',
+            'fecha_nacimiento' => [
+                'required',
+                'date',
+                'before_or_equal:' . Carbon::now()->subYears(18)->format('Y-m-d'),
+            ],
             'localidad' => 'required|string|max:150',
             'calle' => 'required|string|max:150',
             'numero' => 'required|string|max:10',
@@ -93,24 +97,40 @@ class AfiliadoController extends Controller
             'delegacion_sindical' => 'required|string|max:150',
 
             // DOCUMENTOS
-            'foto_dni' => 'required|image|mimes:jpg,jpeg,png|max:100240',
-            'foto_dni_dorso' => 'required|image|mimes:jpg,jpeg,png|max:100240',
+            'foto_dni' => 'nullable|image|mimes:jpg,jpeg,png|max:100240',
+            'foto_dni_dorso' => 'nullable|image|mimes:jpg,jpeg,png|max:100240',
 
             // NUEVOS (opcionales)
-            'recibo_sueldo' => 'required|file|mimes:jpg,jpeg,png,pdf|max:100240',
-            'certificado_trabajo' => 'required|file|mimes:jpg,jpeg,png,pdf|max:100240',
+            'recibo_sueldo' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:100240',
+            'certificado_trabajo' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:100240',
         ];
 
         $messages = [
+            'fecha_nacimiento.before_or_equal' => 
+            'El afiliado debe ser mayor de 18 años para poder registrarse.',
             'required' => 'El campo :attribute es obligatorio',
             'digits' => 'El campo :attribute debe tener :digits dígitos',
             'unique' => 'El :attribute ya existe en el sistema',
             'image' => 'El archivo debe ser una imagen válida',
             'mimes' => 'Formato permitido: jpg, jpeg, png o pdf',
-            'max' => 'El archivo supera el tamaño máximo permitido'
+            'max' => 'El archivo supera el tamaño máximo permitido',
+            
         ];
 
         $validatedData = $request->validate($rules, $messages);
+
+        // ✅ Validar que el DNI coincida con el CUIL
+        $dni = $validatedData['dni'];
+        $cuil = $validatedData['cuil'];
+
+        // Extraemos los 8 dígitos centrales del CUIL
+        $dniEnCuil = substr($cuil, 2, 8);
+
+        if ($dni !== $dniEnCuil) {
+            return back()
+                ->withErrors(['cuil' => 'El DNI no coincide con el CUIL ingresado.'])
+                ->withInput();
+        }
 
         // 2️⃣ Normalizar datos
         $validatedData['nombre'] = strtoupper($validatedData['nombre']);
@@ -216,7 +236,11 @@ class AfiliadoController extends Controller
             'empresa' => 'required|string|max:255',
             'email' => 'required|email',
             'telefono' => 'required|string|max:50',
-            'fecha_nacimiento' => 'required|date',
+            'fecha_nacimiento' => [
+                'required',
+                'date',
+                'before_or_equal:' . Carbon::now()->subYears(18)->format('Y-m-d'),
+            ],
             'localidad' => 'required|string|max:150',
             'calle' => 'required|string|max:150',
             'numero' => 'required|string|max:10',
@@ -248,10 +272,31 @@ class AfiliadoController extends Controller
             'unique' => 'El :attribute ya existe en el sistema',
             'image' => 'El archivo debe ser una imagen válida',
             'mimes' => 'Formato permitido: jpg, jpeg, png o pdf',
-            'max' => 'El archivo supera el tamaño máximo permitido'
+            'max' => 'El archivo supera el tamaño máximo permitido',
+            'fecha_nacimiento.before_or_equal' =>
+            'El afiliado debe ser mayor de 18 años.',
         ];
 
         $validatedData = $request->validate($rules, $messages);
+
+        // ✅ VALIDACIÓN EXTRA: DNI debe coincidir con el CUIL
+        $dni = $validatedData['dni'];
+        $cuil = $validatedData['cuil'];
+
+        $dniEnCuil = substr($cuil, 2, 8);
+
+        if ($dni !== $dniEnCuil) {
+            return back()
+                ->withErrors(['cuil' => 'El DNI no coincide con los 8 dígitos centrales del CUIL.'])
+                ->withInput();
+        }
+
+        // ✅ Si todo está correcto, actualizar
+        $afiliado->update($validatedData);
+
+        return redirect()
+            ->route('afiliados.index')
+            ->with('success', 'Afiliado actualizado correctamente.');
 
         // 2️⃣ Normalizar datos
         $validatedData['nombre'] = strtoupper($validatedData['nombre']);

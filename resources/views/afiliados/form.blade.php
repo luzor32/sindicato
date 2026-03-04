@@ -142,6 +142,8 @@
         @enderror    
     </div>
 
+
+
     <div class="mb-3">
         <label>Sección</label>
         <input type="text" name="seccion" class="form-control"
@@ -159,22 +161,24 @@
 
             <option value="">-- Seleccione --</option>
 
+            @php
+                $contrato = old('tipo_contrato', trim($afiliado->tipo_contrato ?? ''));
+            @endphp
+
             <option value="Planta Permanente"
-                {{ old('tipo_contrato', $afiliado->tipo_contrato ?? '') == 'Planta Permanente' ? 'selected' : '' }}>
+                {{ $contrato === 'Planta Permanente' ? 'selected' : '' }}>
                 Planta Permanente
             </option>
 
             <option value="Temporal"
-                {{ old('tipo_contrato', $afiliado->tipo_contrato ?? '') == 'Temporal' ? 'selected' : '' }}>
+                {{ $contrato === 'Temporal' ? 'selected' : '' }}>
                 Temporal
             </option>
 
         </select>
 
         @error('tipo_contrato')
-            <div class="invalid-feedback">
-                {{ $message }}
-            </div>
+            <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
 
@@ -186,22 +190,24 @@
 
             <option value="">-- Seleccione --</option>
 
+            @php
+                $jornada = old('jornada_laboral', trim($afiliado->jornada_laboral ?? ''));
+            @endphp
+
             <option value="Jornada Completa"
-                {{ old('jornada_laboral', $afiliado->jornada_laboral ?? '') == 'Jornada Completa  ' ? 'selected' : '' }}>
+                {{ $jornada === 'Jornada Completa' ? 'selected' : '' }}>
                 Jornada Completa
             </option>
 
-            <option value="Medio Jornal"
-                {{ old('jornada_laboral', $afiliado->jornada_laboral ?? '') == 'Medio Jornal' ? 'selected' : '' }}>
+            <option value="Media Jornada"
+                {{ $jornada === 'Media Jornada' ? 'selected' : '' }}>
                 Medio Jornal
             </option>
 
         </select>
 
         @error('jornada_laboral')
-            <div class="invalid-feedback">
-                {{ $message }}
-            </div>
+            <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
 
