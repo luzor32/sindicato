@@ -8,3 +8,6 @@ Route::get('/', function () {
 });
 
 Route::resource('afiliados', AfiliadoController::class);
+Route::post('/afiliados/{afiliado}/aprobar',
+    [App\Http\Controllers\AfiliadoController::class, 'aprobar'])
+    ->name('afiliados.aprobar');

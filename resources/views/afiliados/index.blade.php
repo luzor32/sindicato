@@ -47,9 +47,9 @@
         <div class="col-md-3">
             <select name="estado" class="form-select">
                 <option value="">-- Filtrar por Estado --</option>
-                <option value="Pendiente" {{ request('estado') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
-                <option value="Aprobado" {{ request('estado') == 'Aprobado' ? 'selected' : '' }}>Aprobado</option>
-                <option value="Rechazado" {{ request('estado') == 'Rechazado' ? 'selected' : '' }}>Rechazado</option>
+                <option value="Pendiente" {{ request('estado_solicitud') == 'Pendiente' ? 'selected' : '' }}>Pendiente</option>
+                <option value="Aprobado" {{ request('estado_solicitud') == 'Aprobado' ? 'selected' : '' }}>Aprobado</option>
+                <option value="Rechazado" {{ request('estado_solicitud') == 'Rechazado' ? 'selected' : '' }}>Rechazado</option>
             </select>
         </div>
 

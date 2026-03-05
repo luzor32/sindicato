@@ -34,8 +34,8 @@ class Afiliado extends Model
         'certificado_trabajo',
         'estado_solicitud',
         'estado_afiliado',
-        'fecha_alta',
-        'fecha_baja',
+        'fecha_alta'=> 'datetime',
+        'fecha_baja'=> 'datetime',
         'observaciones'
     ];
 

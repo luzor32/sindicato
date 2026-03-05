@@ -1,3 +1,6 @@
+@php
+    use Carbon\Carbon;
+@endphp
 @extends('layouts.app')
 
 @section('content')
@@ -265,15 +268,71 @@
                         <p><strong>Fecha Afiliación:</strong> {{ $afiliado->fecha_afiliacion ?? '-' }}</p>
                         <p><strong>Delegación:</strong> {{ $afiliado->delegacion_sindical ?? '-' }}</p>
 
-                            <strong>Estado:</strong>
-                            @if ($afiliado->estado === 'pendiente')
+                            <strong>Estado Solicitud:</strong>
+
+                            @if ($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_PENDIENTE)
                                 <span class="badge bg-warning text-dark">Pendiente</span>
-                            @elseif($afiliado->estado === 'aprobado')
+
+                            @elseif($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_APROBADO)
                                 <span class="badge bg-success">Aprobado</span>
-                            @else
+
+                            @elseif($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_RECHAZADO)
                                 <span class="badge bg-danger">Rechazado</span>
                             @endif
-                        </p>
+
+                            @if($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_APROBADO)
+                                <p>
+                                    <strong>Estado Afiliado:</strong>
+                                    <span class="badge bg-primary">
+                                        {{ ucfirst($afiliado->estado_afiliado) }}
+                                    </span>
+                                </p>
+                            @endif
+
+                            @if($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_PENDIENTE)
+
+                            <hr>
+
+                            <form method="POST"
+                                action="{{ route('afiliados.aprobar', $afiliado->id) }}">
+                                @csrf
+
+                                <div class="mb-2">
+                                    <select name="decision" class="form-control" required>
+                                        <option value="">-- Seleccionar decisión --</option>
+                                        <option value="aprobado">Aprobar</option>
+                                        <option value="rechazado">Rechazar</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-2">
+                                    <textarea name="observaciones"
+                                            class="form-control"
+                                            placeholder="Observación obligatoria"
+                                            required></textarea>
+                                </div>
+
+                                <button class="btn btn-success">
+                                    Guardar decisión
+                                </button>
+                            </form>
+
+                            @if($afiliado->fecha_alta)
+                                <div class="alert alert-success mt-2">
+                                    <strong>Fecha de Alta:</strong>
+                                    {{ Carbon::parse($afiliado->fecha_alta)->format('d/m/Y H:i') }}
+                                </div>
+                            @endif
+
+
+                            @endif
+                            @if($afiliado->observaciones)
+                                <div class="alert alert-info mt-3">
+                                    <strong>Observación administrativa:</strong><br>
+                                    {{ $afiliado->observaciones }}
+                                </div>
+                            @endif
+                        
                     </div>
 
 

@@ -7,51 +7,52 @@ use App\Models\Afiliado;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
-use Carbon\Carbon;
+
+use Illuminate\Support\Carbon;
 class AfiliadoController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
 
- public function index(Request $request)
-{
-    $buscar = $request->buscar;
-    $estado = $request->estado;
-    $orden = $request->orden ?? 'id';
-    $direccion = $request->direccion ?? 'desc';
+    public function index(Request $request)
+    {
+        $buscar = $request->buscar;
+        $estado = $request->estado;
+        $orden = $request->orden ?? 'id';
+        $direccion = $request->direccion ?? 'desc';
 
-    $afiliados = Afiliado::query()
+        $afiliados = Afiliado::query()
 
-        ->when($buscar, function ($query) use ($buscar) {
-            $query->where(function ($q) use ($buscar) {
-                $q->where('dni', 'like', "%{$buscar}%")
-                  ->orWhere('nombre', 'like', "%{$buscar}%")
-                  ->orWhere('apellido', 'like', "%{$buscar}%");
-            });
-        })
+            ->when($buscar, function ($query) use ($buscar) {
+                $query->where(function ($q) use ($buscar) {
+                    $q->where('dni', 'like', "%{$buscar}%")
+                    ->orWhere('nombre', 'like', "%{$buscar}%")
+                    ->orWhere('apellido', 'like', "%{$buscar}%");
+                });
+            })
 
-        ->when($estado, function ($query) use ($estado) {
-            $query->where('estado', $estado);
-        })
+            ->when($estado, function ($query) use ($estado) {
+                $query->where('estado_solicitud', $estado);
+            })
 
-        ->orderBy($orden, $direccion)
+            ->orderBy($orden, $direccion)
 
-        ->paginate(2)
-        ->withQueryString();
+            ->paginate(2)
+            ->withQueryString();
 
-        if ($request->ajax()) {
-        return view('afiliados.partials.tabla', compact('afiliados'))->render();
-         }
+            if ($request->ajax()) {
+            return view('afiliados.partials.tabla', compact('afiliados'))->render();
+            }
 
-    return view('afiliados.index', compact(
-        'afiliados',
-        'buscar',
-        'estado',
-        'orden',
-        'direccion'
-    ));
-}
+        return view('afiliados.index', compact(
+            'afiliados',
+            'buscar',
+            'estado',
+            'orden',
+            'direccion'
+        ));
+    }
 
 
     /**
@@ -294,9 +295,7 @@ class AfiliadoController extends Controller
         // ✅ Si todo está correcto, actualizar
         $afiliado->update($validatedData);
 
-        return redirect()
-            ->route('afiliados.index')
-            ->with('success', 'Afiliado actualizado correctamente.');
+        
 
         // 2️⃣ Normalizar datos
         $validatedData['nombre'] = strtoupper($validatedData['nombre']);
@@ -307,14 +306,14 @@ class AfiliadoController extends Controller
 
         try {
 
-            // 3️⃣ Aprobación por primera vez
-            if (
-                $request->estado_solicitud == Afiliado::SOLICITUD_APROBADO &&
-                $afiliado->estado_solicitud != Afiliado::SOLICITUD_APROBADO
-            ) {
-                $validatedData['fecha_alta'] = now();
-                $validatedData['estado_afiliado'] = Afiliado::AFILIADO_ACTIVO;
+            
+
+            // Si estaba rechazado y se editó, vuelve a pendiente
+            if ($afiliado->estado_solicitud === Afiliado::SOLICITUD_RECHAZADO) {
+                $afiliado->estado_solicitud = Afiliado::SOLICITUD_PENDIENTE;
+                $afiliado->observaciones = null; // limpiamos observación anterior
             }
+            $afiliado->save();
 
             /*
             |--------------------------------------------------------------------------
@@ -407,5 +406,28 @@ class AfiliadoController extends Controller
         return redirect()
             ->route('afiliados.index')
             ->with('mensaje', 'Afiliado eliminado correctamente');
+    }
+
+    public function aprobar(Request $request, Afiliado $afiliado)
+    {
+        $request->validate([
+            'decision' => 'required|in:aprobado,rechazado',
+            'observaciones' => 'required|string|max:1000'
+        ]);
+
+        // Guardar decisión
+        $afiliado->estado_solicitud = $request->decision;
+        $afiliado->observaciones = $request->observaciones;
+
+        if ($request->decision === Afiliado::SOLICITUD_APROBADO) {
+            $afiliado->estado_afiliado = Afiliado::AFILIADO_ACTIVO;
+            $afiliado->fecha_alta = Carbon::now();
+        }
+
+        $afiliado->save();
+
+        return redirect()
+            ->route('afiliados.show', $afiliado)
+            ->with('mensaje', 'Solicitud actualizada correctamente.');
     }
 }

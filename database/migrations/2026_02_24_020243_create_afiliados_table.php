@@ -24,12 +24,15 @@ return new class extends Migration
             $table->string('telefono', 50)->nullable();
             $table->string('empresa');
             $table->string('foto_dni')->nullable();
-            $table->enum('estado', ['pendiente', 'aprobado', 'rechazado'])->default('pendiente');
             $table->date('fecha_alta')->nullable();
             $table->date('fecha_baja')->nullable();
             $table->text('observaciones')->nullable();
             $table->timestamps();
         });
+
+        Schema::table('afiliados', function (Blueprint $table) {
+        $table->dropColumn('estado');
+    });
     }
 
     /**
@@ -38,5 +41,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('afiliados');
+
+         Schema::table('afiliados', function (Blueprint $table) {
+        $table->string('estado')->nullable();
+    });
     }
 };

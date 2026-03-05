@@ -33,11 +33,13 @@
 
                     {{-- ESTADO --}}
                     <td>
-                        @if ($afiliado->estado === 'pendiente')
-                            <span class="badge bg-warning text-dark">Pendiente</span>
-                        @elseif($afiliado->estado === 'aprobado')
+                        @if ($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_PENDIENTE)
+                        <span class="badge bg-warning text-dark">Pendiente</span>
+
+                        @elseif($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_APROBADO)
                             <span class="badge bg-success">Aprobado</span>
-                        @else
+
+                        @elseif($afiliado->estado_solicitud === \App\Models\Afiliado::SOLICITUD_RECHAZADO)
                             <span class="badge bg-danger">Rechazado</span>
                         @endif
                     </td>
