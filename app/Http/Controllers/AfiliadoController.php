@@ -41,16 +41,26 @@ class AfiliadoController extends Controller
             ->paginate(2)
             ->withQueryString();
 
-            if ($request->ajax()) {
+
+        // DATOS PARA EL GRAFICO
+        $estados = Afiliado::select('estado_solicitud', DB::raw('count(*) as total'))
+            ->groupBy('estado_solicitud')
+            ->pluck('total','estado_solicitud');
+
+
+        // respuesta para AJAX (tabla)
+        if ($request->ajax()) {
             return view('afiliados.partials.tabla', compact('afiliados'))->render();
-            }
+        }
+
 
         return view('afiliados.index', compact(
             'afiliados',
             'buscar',
             'estado',
             'orden',
-            'direccion'
+            'direccion',
+            'estados'
         ));
     }
 
