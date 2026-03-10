@@ -7,7 +7,7 @@
                 <th>#</th>
                 <th>N° Afiliado</th>
                 <th>Nombre</th>
-                <th>DNI</th>
+                <th>DNI</th>                
                 <th>Empresa</th>
                 <th>Estado</th>
                 <th>DNI</th>
@@ -27,7 +27,7 @@
                         {{ $afiliado->nombre }} {{ $afiliado->apellido }}
                     </td>
 
-                    <td>{{ $afiliado->dni }}</td>
+                    <td>{{ $afiliado->dni }}</td>                                                          
 
                     <td>{{ $afiliado->empresa }}</td>
 

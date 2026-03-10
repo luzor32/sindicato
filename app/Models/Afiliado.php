@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\CargaFamiliar;
+
 
 class Afiliado extends Model
 {
@@ -89,6 +91,11 @@ class Afiliado extends Model
             $afiliado->fecha_baja = now();
         }
 
-    });
-}
+        });    
+    }
+
+    public function cargasFamiliares()
+    {
+        return $this->hasMany(CargaFamiliar::class, 'afiliado_id');
+    }
 }

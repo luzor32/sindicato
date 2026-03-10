@@ -6,26 +6,13 @@
         <div class="d-flex justify-content-between align-items-center">
 
             <div class="d-flex align-items-center gap-3">
-                
-                <img src="{{ asset('img/logo-seoc.png') }}" 
-                    alt="Logo Sindicato" 
-                    style="height:50px; width:auto;">
-
+                <i class="fa fa-file-alt fa-2x text-white"></i>             
                 <div>
                     <h2 class="mb-1">
-                        SEOC
-                    </h2>
-                    <p class="mb-0">
-                        Administración y control de afiliados
-                    </p>
+                        Administración y control de solicitudes de afiliación
+                    </h2>                    
                 </div>
 
-            </div>
-
-            <div>
-                <a href="{{ route('afiliados.create') }}" class="btn btn-light">
-                    <i class="fas fa-plus"></i> Nuevo Afiliado
-                </a>
             </div>
 
         </div>
@@ -42,6 +29,7 @@
             </div>
 
         </div>
+        
     </div>
 
     @if (session('mensaje'))
@@ -76,14 +64,14 @@
 
     </form>
     <div class="card shadow-sm">
-    <div class="card-body">
+        <div class="card-body">
 
-        <div id="tabla-afiliados">
-            @include('afiliados.partials.tabla')
+            <div id="tabla-afiliados">
+                @include('afiliados.partials.tabla')
+            </div>
+
         </div>
-
     </div>
-</div>
 @endsection
 
 @section('scripts')
