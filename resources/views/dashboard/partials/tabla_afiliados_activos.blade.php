@@ -9,6 +9,7 @@
 <th>N° Afiliado</th>
 <th>Nombre</th>
 <th>DNI</th>
+<th>Familiares</th>
 <th>Empresa</th>
 <th>Estado</th>
 <th>DNI</th>
@@ -34,7 +35,16 @@
 <td>{{ $afiliado->dni }}</td>
 
 
+<td>
 
+<a href="{{ route('carga_familiar.show',$afiliado->id) }}"
+class="badge bg-info text-decoration-none">
+
+{{ $afiliado->cargas_familiares_count }}
+
+</a>
+
+</td>
 
 
 <td>{{ $afiliado->empresa }}</td>
